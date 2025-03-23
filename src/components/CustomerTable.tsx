@@ -21,7 +21,7 @@ export function CustomerTable() {
     createdAt: string;
     updatedAt: string;
     subscriptionPlan: string;
-    validity: Null;
+    validity: null;
   }
 
   const [users, setUsers] = useState<User[]>([]);
@@ -32,11 +32,11 @@ export function CustomerTable() {
       try {
         const res = await fetch(
           "http://localhost:3000/api/admin/users"
-        ); // Change this if your API route is different
+        );
         const data = await res.json();
 
         if (data.success) {
-          setUsers(data.data); // Store API data in state
+          setUsers(data.data);
         } else {
           console.error("Error fetching users:", data.message);
         }

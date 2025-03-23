@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import React, { useEffect, useState } from "react";
 import { UsersChart } from "@/components/UsersChart";
@@ -17,46 +17,62 @@ const Dashboard = () => {
     monthlyActiveUsers: 0,
   });
 
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const [loadingMeetings, setLoadingMeetings] = useState(true);
+  const [loadingUsers, setLoadingUsers] = useState(true);
+  const [meetingsError, setMeetingsError] = useState("");
+  const [usersError, setUsersError] = useState("");
 
-  // Fetch data from backend
+  // Fetch meeting stats
   useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      setError("");
+    const fetchMeetingStats = async () => {
+      setLoadingMeetings(true);
+      setMeetingsError("");
 
       try {
-        // Fetch meeting stats
-        const meetingsResponse = await fetch("http://localhost:3000/api/admin/meetingsCount");
-        if (!meetingsResponse.ok) throw new Error("Failed to fetch meeting stats");
-        const meetingsData = await meetingsResponse.json();
+        const response = await fetch(`http://localhost:3000/api/admin/meetingsCount?filter=${filter}`);
+        // console.log(response);
+        if (!response.ok) throw new Error("Failed to fetch meeting stats");
 
-        // Fetch user stats
-        const usersResponse = await fetch("http://localhost:3000/api/admin/analytics");
-        if (!usersResponse.ok) throw new Error("Failed to fetch user data");
-        const usersData = await usersResponse.json();
-
-        // Update state
+        const data = await response.json();
         setMeetingStats({
-          booked: meetingsData.booked || 0,
-          attended: meetingsData.attended || 0,
-          cancelled: meetingsData.cancelled || 0,
-        });
-
-        setUserCount({
-          totalUsers: usersData.totalUsers || 0,
-          dailyActiveUsers: usersData.dailyActiveUsers || 0,
-          monthlyActiveUsers: usersData.monthlyActiveUsers || 0,
+          booked: data.totalBooked || 0,
+          attended: data.totalAttended || 0,
+          cancelled: data.totalCanceled || 0,
         });
       } catch (err) {
-        setError(err.message);
+        setMeetingsError(err.message);
       } finally {
-        setLoading(false);
+        setLoadingMeetings(false);
       }
     };
 
-    fetchData();
+    fetchMeetingStats();
+  }, [filter]); // Refetch data when filter changes
+
+  // Fetch user stats
+  useEffect(() => {
+    const fetchUserStats = async () => {
+      setLoadingUsers(true);
+      setUsersError("");
+
+      try {
+        const response = await fetch("http://localhost:3000/api/admin/analytics");
+        if (!response.ok) throw new Error("Failed to fetch user data");
+
+        const data = await response.json();
+        setUserCount({
+          totalUsers: data.totalUsers || 0,
+          dailyActiveUsers: data.dailyActiveUsers || 0,
+          monthlyActiveUsers: data.monthlyActiveUsers || 0,
+        });
+      } catch (err) {
+        setUsersError(err.message);
+      } finally {
+        setLoadingUsers(false);
+      }
+    };
+
+    fetchUserStats();
   }, []);
 
   return (
@@ -69,27 +85,33 @@ const Dashboard = () => {
 
         {/* Meetings Section */}
         <div className="col-span-2 bg-[#D5ECF5] p-8 rounded-lg shadow-lg">
-          <h2 className="text-3xl font-bold text-[#2D2D2D] mb-6 pb-4 border-b border-[#939393] text-center">
-            Meetings
-          </h2>
-          {loading ? (
+          <div className="flex justify-between items-center mb-6 pb-4 border-b border-[#939393]">
+            <h2 className="text-3xl font-bold text-[#2D2D2D]">Meetings</h2>
+          </div>
+
+          {loadingMeetings ? (
             <p className="text-center text-[#2D2D2D]">Loading meeting data...</p>
-          ) : error ? (
-            <p className="text-center text-red-500">{error}</p>
+          ) : meetingsError ? (
+            <p className="text-center text-red-500">{meetingsError}</p>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 place-items-center">
+              {/* Meetings Booked */}
               <div className="bg-[#8CB0FF] w-full max-w-[400px] rounded-lg p-6 shadow-md">
                 <h3 className="text-xl text-center font-semibold text-[#000000]">Meetings Booked</h3>
                 <p className="text-lg text-center font-medium pt-4 text-[#2D2D2D]">
                   {meetingStats.booked}
                 </p>
               </div>
+
+              {/* Meetings Attended */}
               <div className="bg-[#8CB0FF] w-full max-w-[400px] rounded-lg p-6 shadow-md">
                 <h3 className="text-xl text-center font-semibold text-[#000000]">Meetings Attended</h3>
                 <p className="text-lg text-center font-medium pt-4 text-[#2D2D2D]">
                   {meetingStats.attended}
                 </p>
               </div>
+
+              {/* Meetings Cancelled */}
               <div className="bg-[#8CB0FF] w-full max-w-[400px] rounded-lg p-6 shadow-md">
                 <h3 className="text-xl text-center font-semibold text-[#000000]">Meetings Cancelled</h3>
                 <p className="text-lg text-center font-medium pt-4 text-[#2D2D2D]">
@@ -105,20 +127,25 @@ const Dashboard = () => {
           <h2 className="text-3xl font-bold text-[#2D2D2D] mb-6 pb-4 border-b border-[#939393] text-center">
             User Count
           </h2>
-          {loading ? (
+          {loadingUsers ? (
             <p className="text-center text-[#2D2D2D]">Loading user data...</p>
-          ) : error ? (
-            <p className="text-center text-red-500">{error}</p>
+          ) : usersError ? (
+            <p className="text-center text-red-500">{usersError}</p>
           ) : (
-            <div className="grid grid-cols-1 grid-rows-3 gap-6 place-items-center">
+            <div className="grid grid-cols-1 gap-6 place-items-center">
+              {/* Total Users */}
               <div className="bg-[#407BFF] w-full max-w-[400px] rounded-lg p-6 shadow-md text-white">
                 <h3 className="text-xl text-center font-semibold">Total Users</h3>
                 <p className="text-lg text-center font-medium pt-4">{userCount.totalUsers}</p>
               </div>
+
+              {/* Daily Active Users */}
               <div className="bg-[#407BFF] w-full max-w-[400px] rounded-lg p-6 shadow-md text-white">
                 <h3 className="text-xl text-center font-semibold">Daily Active Users</h3>
                 <p className="text-lg text-center font-medium pt-4">{userCount.dailyActiveUsers}</p>
               </div>
+
+              {/* Monthly Active Users */}
               <div className="bg-[#407BFF] w-full max-w-[400px] rounded-lg p-6 shadow-md text-white">
                 <h3 className="text-xl text-center font-semibold">Monthly Active Users</h3>
                 <p className="text-lg text-center font-medium pt-4">{userCount.monthlyActiveUsers}</p>
@@ -132,13 +159,8 @@ const Dashboard = () => {
           <h2 className="text-3xl font-bold text-[#2D2D2D] mb-6 pb-4 border-b border-[#939393] text-center">
             Users Chart
           </h2>
-          <p className="text-sm text-[#2D2D2D] mb-6 text-center">
-            Chart showing Daily Active Users & Monthly Active Users.
-          </p>
-          <div className="mb-6">
-            <UsersChart />
-          </div>
-          <div className="flex justify-center">
+          <UsersChart />
+          <div className="flex justify-center mt-4">
             <DownloadButton />
           </div>
         </div>
