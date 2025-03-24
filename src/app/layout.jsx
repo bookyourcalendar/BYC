@@ -1,6 +1,6 @@
 "use client"
 
-import type { Metadata } from "next";
+import { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
@@ -18,26 +18,21 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-const metadata: Metadata = {
+const metadata = {
   title: "BookYourCalendar",
   description: "A calendar booking app",
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-
+export default function RootLayout({ children }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <div className="flex h-screen">
-          {/* Sidebar - Hidden on small screens, toggled with button */}
+          {/* Sidebar - Always visible on larger screens, collapsible on mobile */}
           <div
-            className={`fixed left-0 top-0 h-screen w-64 text-white 
+            className={`fixed left-0 top-0 h-screen bg-gray-900 text-white shadow-lg 
             transition-transform duration-300 ease-in-out 
             ${isSidebarOpen ? "translate-x-0" : "-translate-x-64"} md:translate-x-0`}
           >
@@ -45,8 +40,8 @@ export default function RootLayout({
           </div>
 
           {/* Main Content Area */}
-          <div className="flex flex-col flex-1 transition-all">
-            {/* Navbar */}
+          <div className="flex flex-col flex-1 min-h-screen md:ml-64">
+            {/* Navbar - Stays at the top */}
             <Navbar />
 
             {/* Mobile Menu Button */}
@@ -57,8 +52,10 @@ export default function RootLayout({
               <Menu className="w-6 h-6" />
             </button>
 
-            {/* Content */}
-            <div className="flex-1 p-4 overflow-auto">{children}</div>
+            {/* Content - Below Sidebar & Navbar */}
+            <div className="mt-16 p-4 overflow-auto">
+              {children}
+            </div>
           </div>
         </div>
       </body>

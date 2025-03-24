@@ -8,30 +8,23 @@ import { Bell, Menu } from "lucide-react"; // Notification & Menu icons
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 
-interface Notification {
-  id: number;
-  ticketId: string;
-  fullName: string;
-  issueType: string;
-  description: string;
-  createdAt: string;
-}
-
 const Navbar = () => {
-  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [notifications, setNotifications] = useState([]);
   const [showDropdown, setShowDropdown] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false); // Mobile Sidebar Toggle
-  const dropdownRef = useRef<HTMLDivElement>(null);
+  const dropdownRef = useRef(null);
 
   useEffect(() => {
     const fetchNotifications = async () => {
       try {
-        const res = await fetch("http://localhost:3000/api/admin/ticketNotifiation");
+        const res = await fetch(
+          "http://localhost:3000/api/admin/ticketNotifiation"
+        );
         if (!res.ok) throw new Error("Failed to fetch notifications");
 
         const data = await res.json();
 
-        const formattedData = data.map((ticket: Notification) => ({
+        const formattedData = data.map((ticket) => ({
           id: ticket.id,
           ticketId: ticket.ticketId,
           fullName: ticket.fullName,
@@ -58,8 +51,8 @@ const Navbar = () => {
 
   // Close dropdown when clicking outside
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setShowDropdown(false);
       }
     };
@@ -70,9 +63,12 @@ const Navbar = () => {
   // Mark all notifications as read
   const clearNotifications = async () => {
     try {
-      const res = await fetch("http://localhost:3000/api/admin/markAsReadTicket", {
-        method: "POST",
-      });
+      const res = await fetch(
+        "http://localhost:3000/api/admin/markAsReadTicket",
+        {
+          method: "POST",
+        }
+      );
       if (!res.ok) throw new Error("Failed to mark notifications as read");
       setNotifications([]);
     } catch (error) {
@@ -81,7 +77,7 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="bg-white border-b border-gray-200 shadow-sm fixed top-0 left-[250px] w-[calc(100%-250px)] z-50">
+    <nav className="bg-white border-b border-gray-200 shadow-sm fixed top-0 left-0 w-full md:left-[250px] md:w-[calc(100%-250px)] z-50">
       <div className="flex items-center justify-end px-4 py-3">
         {/* Sidebar Toggle Button (Mobile) */}
         <button
@@ -90,11 +86,6 @@ const Navbar = () => {
         >
           {/* <Menu className="w-6 h-6" /> */}
         </button>
-
-        {/* Logo */}
-        {/* <Link href="/" className="text-2xl font-bold text-gray-800">
-          <Image src="/navlogo.png" width={160} height={40} alt="Book Your Calendar" priority />
-        </Link> */}
 
         {/* Right Section - Notifications & Profile */}
         <div className="flex items-center gap-4 relative">
@@ -120,7 +111,9 @@ const Navbar = () => {
               className="absolute right-0 mt-2 w-80 bg-white shadow-lg rounded-lg p-4 border border-gray-200 z-50"
               style={{ maxHeight: "300px", overflowY: "auto" }}
             >
-              <h3 className="text-lg font-semibold text-gray-700 mb-3">Notifications</h3>
+              <h3 className="text-lg font-semibold text-gray-700 mb-3">
+                Notifications
+              </h3>
               {notifications.length > 0 ? (
                 <ul className="space-y-3 overflow-hidden">
                   {notifications.map((notification) => (
@@ -133,9 +126,12 @@ const Navbar = () => {
                           <span className="block text-sm font-semibold text-blue-600">
                             {notification.issueType}
                           </span>
-                          <span className="block text-gray-800">{notification.description}</span>
+                          <span className="block text-gray-800">
+                            {notification.description}
+                          </span>
                           <span className="block text-xs text-gray-500">
-                            From: {notification.fullName} | {notification.createdAt}
+                            From: {notification.fullName} |{" "}
+                            {notification.createdAt}
                           </span>
                         </div>
                         <span className="text-xs bg-blue-100 text-blue-600 px-2 py-1 rounded-full">
@@ -146,7 +142,9 @@ const Navbar = () => {
                   ))}
                 </ul>
               ) : (
-                <p className="text-gray-500 text-sm text-center">No new notifications</p>
+                <p className="text-gray-500 text-sm text-center">
+                  No new notifications
+                </p>
               )}
 
               {/* Clear Notifications Button */}

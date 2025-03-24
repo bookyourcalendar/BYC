@@ -22,6 +22,6 @@
       "@/*": ["./src/*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "src/components/CustomerTable.jsx", "src/components/DownloadButton.jsx", "src/components/MeetingsChart.jsx", "src/components/Navbar.jsx", "src/components/Sidebar.jsx", "src/components/TicketsTable.jsx", "src/components/UsersChart.jsx", "src/app/page.jsx", "src/app/not-found.jsx", "src/app/layout.jsx", "src/app/Tickets/page.jsx", "src/app/Dashboard/page.jsx", "src/app/Profile/page.jsx", "src/app/Customer/page.jsx"],
   "exclude": ["node_modules"]
 }

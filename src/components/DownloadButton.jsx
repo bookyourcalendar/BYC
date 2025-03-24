@@ -12,7 +12,6 @@ import { Download } from "lucide-react";
 import dynamic from "next/dynamic";
 import * as XLSX from "xlsx";
 
-// Dynamic import to avoid SSR issues with jspdf
 const jsPDF = dynamic(() => import("jspdf"), { ssr: false });
 
 const DownloadButton = () => {
@@ -28,7 +27,6 @@ const DownloadButton = () => {
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "Customers");
 
-    // Convert to a binary Excel file and trigger download
     const excelBuffer = XLSX.write(workbook, {
       bookType: "xlsx",
       type: "array",
