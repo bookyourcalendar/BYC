@@ -1,12 +1,15 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSub,
+  DropdownMenuSubTrigger,
+  DropdownMenuSubContent,
 } from "@/components/ui/dropdown-menu";
 import { Download } from "lucide-react";
 import dynamic from "next/dynamic";
@@ -15,17 +18,45 @@ import * as XLSX from "xlsx";
 const jsPDF = dynamic(() => import("jspdf"), { ssr: false });
 
 const DownloadButton = () => {
-  const exportXLS = () => {
+  const [filter, setFilter] = useState("7d");
+
+  const fetchData = async () => {
+    try {
+      const meetingsResponse = await fetch(
+        `http://localhost:3000/api/admin/meetingsGraph?filter=${filter}`
+      );
+      const meetingsData = await meetingsResponse.json();
+
+      const meetingsCountResponse = await fetch(
+        "http://localhost:3000/api/admin/meetingsCount"
+      );
+      const meetingsCountData = await meetingsCountResponse.json();
+
+      const analyticsResponse = await fetch(
+        "http://localhost:3000/api/admin/analytics"
+      );
+      const analyticsData = await analyticsResponse.json();
+
+      return { meetingsData, meetingsCountData, analyticsData };
+    } catch (error) {
+      console.error("Error fetching data:", error);
+      return null;
+    }
+  };
+
+  const exportXLS = async () => {
     console.log("Exporting as XLS...");
+    const data = await fetchData();
+    if (!data) return;
 
-    const data = [
-      { userId: "U001", name: "John Doe", email: "john@example.com" },
-      { userId: "U002", name: "Jane Smith", email: "jane@example.com" },
-    ];
+    const worksheet = XLSX.utils.json_to_sheet([
+      { ...data.meetingsCountData, filter },
+      { ...data.analyticsData },
+      { ...data.meetingsData },
+    ]);
 
-    const worksheet = XLSX.utils.json_to_sheet(data);
     const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Customers");
+    XLSX.utils.book_append_sheet(workbook, worksheet, "BookeYourCalendar Report");
 
     const excelBuffer = XLSX.write(workbook, {
       bookType: "xlsx",
@@ -38,7 +69,7 @@ const DownloadButton = () => {
 
     const link = document.createElement("a");
     link.href = URL.createObjectURL(dataBlob);
-    link.download = "customer_report.xlsx";
+    link.download = "BookeYourCalendar-report.xlsx";
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -46,36 +77,56 @@ const DownloadButton = () => {
 
   const exportPDF = async () => {
     console.log("Exporting as PDF...");
+    const data = await fetchData();
+    if (!data) return;
 
     const { default: jsPDF } = await import("jspdf");
     const autoTable = (await import("jspdf-autotable")).default;
 
     const doc = new jsPDF();
-    doc.text("Customer Report", 14, 10);
+    doc.text("BookeYourCalendar Report", 14, 10);
 
     autoTable(doc, {
-      head: [["User ID", "Name", "Email"]],
+      head: [["Category", "Value"]],
       body: [
-        ["U001", "John Doe", "john@example.com"],
-        ["U002", "Jane Smith", "jane@example.com"],
+        ["Filter", filter],
+        ...Object.entries(data.meetingsCountData),
+        ...Object.entries(data.analyticsData),
+        ...Object.entries(data.meetingsData),
       ],
     });
 
-    doc.save("customer_report.pdf");
+    doc.save("BookeYourCalendar-report.pdf");
   };
 
   return (
     <div className="flex justify-end">
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button className="flex items-center gap-2">
+          <Button className="bg-blue-500 text-white flex items-center gap-2">
             <Download className="w-4 h-4" />
             Export
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent className="w-44">
-          <DropdownMenuItem onClick={exportXLS}>Export as XLS</DropdownMenuItem>
-          <DropdownMenuItem onClick={exportPDF}>Export as PDF</DropdownMenuItem>
+          <DropdownMenuSub>
+            <DropdownMenuSubTrigger>Select Filter</DropdownMenuSubTrigger>
+            <DropdownMenuSubContent>
+              {['7d', '30d', '90d', '365d'].map((option) => (
+                <DropdownMenuItem
+                  key={option}
+                  onSelect={(e) => {
+                    e.preventDefault();
+                    setFilter(option);
+                  }}
+                >
+                  {option}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuSubContent>
+          </DropdownMenuSub>
+          <DropdownMenuItem onSelect={exportXLS}>Export as XLS</DropdownMenuItem>
+          <DropdownMenuItem onSelect={exportPDF}>Export as PDF</DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
     </div>

@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
-import { Bar, BarChart, CartesianGrid, XAxis } from "recharts";
+import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
 import {
   ChartContainer,
   ChartTooltip,
@@ -10,83 +10,103 @@ import {
   ChartLegend,
   ChartLegendContent,
 } from "@/components/ui/chart";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
+const chartConfig = {
+  totalBooked: { label: "Meetings Booked", color: "hsl(210, 100%, 70%)" },
+  totalScheduled: { label: "Meetings Scheduled", color: "hsl(210, 100%, 55%)" },
+  totalCanceled: { label: "Meetings Cancelled", color: "hsl(210, 100%, 40%)" },
+};
 
 const MeetingsChart = () => {
-  const monthData = [
-    { month: "January", MeetingsBooked: 186, MeetingsCancelled: 80, MeetingsAttended: 20 },
-    { month: "February", MeetingsBooked: 305, MeetingsCancelled: 200, MeetingsAttended: 60 },
-    { month: "March", MeetingsBooked: 237, MeetingsCancelled: 120, MeetingsAttended: 80 },
-    { month: "April", MeetingsBooked: 73, MeetingsCancelled: 190, MeetingsAttended: 70 },
-    { month: "May", MeetingsBooked: 209, MeetingsCancelled: 130, MeetingsAttended: 120 },
-    { month: "June", MeetingsBooked: 214, MeetingsCancelled: 140, MeetingsAttended: 110 },
-  ];
+  const [dataType, setDataType] = useState("totalBooked");
+  const [timeRange, setTimeRange] = useState("7d");
+  const [chartData, setChartData] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const weekData = [
-    { day: "Mon", MeetingsBooked: 30, MeetingsCancelled: 10, MeetingsAttended: 5 },
-    { day: "Tue", MeetingsBooked: 40, MeetingsCancelled: 15, MeetingsAttended: 10 },
-    { day: "Wed", MeetingsBooked: 35, MeetingsCancelled: 12, MeetingsAttended: 8 },
-    { day: "Thu", MeetingsBooked: 45, MeetingsCancelled: 18, MeetingsAttended: 12 },
-    { day: "Fri", MeetingsBooked: 50, MeetingsCancelled: 20, MeetingsAttended: 15 },
-    { day: "Sat", MeetingsBooked: 55, MeetingsCancelled: 22, MeetingsAttended: 18 },
-    { day: "Sun", MeetingsBooked: 60, MeetingsCancelled: 25, MeetingsAttended: 20 },
-  ];
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        const response = await fetch(
+          `http://localhost:3000/api/admin/meetingsGraph?filter=${timeRange}`
+        );
+        const result = await response.json();
 
-  const yearData = [
-    {
-      period: "Year",
-      MeetingsBooked: monthData.reduce((sum, item) => sum + item.MeetingsBooked, 0),
-      MeetingsCancelled: monthData.reduce((sum, item) => sum + item.MeetingsCancelled, 0),
-      MeetingsAttended: monthData.reduce((sum, item) => sum + item.MeetingsAttended, 0),
-    },
-  ];
-
-  const chartConfig = {
-    MeetingsBooked: { label: "Meetings Booked", color: "#2563eb" },
-    MeetingsCancelled: { label: "Meetings Cancelled", color: "hsl(var(--chart-1))" },
-    MeetingsAttended: { label: "Meetings Attended", color: "hsl(var(--chart-2))" },
-  };
-
-  const [filter, setFilter] = useState("month");
-  const getFilteredData = () => {
-    switch (filter) {
-      case "7days": return weekData;
-      case "month": return monthData;
-      case "year": return yearData;
-      default: return monthData;
-    }
-  };
+        setChartData([
+          { label: chartConfig[dataType].label, value: result[dataType] || 0 },
+        ]);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        setChartData([]);
+      }
+      setLoading(false);
+    };
+    fetchData();
+  }, [dataType, timeRange]);
 
   return (
-    <div className="flex flex-col gap-8 items-center">
-      <Card className="w-full max-w-[800px] p-6">
-        <Tabs defaultValue="month" className="w-full">
-          <TabsList className="grid grid-cols-3 gap-2">
-            <TabsTrigger value="7days" onClick={() => setFilter("7days")}>Last 7 Days</TabsTrigger>
-            <TabsTrigger value="month" onClick={() => setFilter("month")}>Month-wise</TabsTrigger>
-            <TabsTrigger value="year" onClick={() => setFilter("year")}>Year-wise</TabsTrigger>
-          </TabsList>
+    <div className="flex flex-col gap-6 items-center w-full px-4 md:px-0">
+      <Card className="w-full max-w-[800px] p-6 relative">
+        {/* Filters */}
+        <div className="flex flex-col md:flex-row justify-end gap-4 mb-4 w-full">
+          <Select value={dataType} onValueChange={setDataType}>
+            <SelectTrigger className="w-full md:w-[180px]">
+              <SelectValue placeholder="Select Type" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="totalBooked">Meetings Booked</SelectItem>
+              <SelectItem value="totalScheduled">Meetings Scheduled</SelectItem>
+              <SelectItem value="totalCanceled">Meetings Cancelled</SelectItem>
+            </SelectContent>
+          </Select>
 
-          <TabsContent value={filter}>
-            <ChartContainer config={chartConfig} className="h-[400px] w-full max-w-full">
-              <BarChart accessibilityLayer data={getFilteredData()}>
-                <CartesianGrid vertical={false} />
-                <XAxis
-                  dataKey={filter === "7days" ? "day" : filter === "month" ? "month" : "period"}
-                  tickLine={false}
-                  tickMargin={10}
-                  axisLine={false}
-                  tickFormatter={(value) => value.slice(0, 3)}
-                />
-                <ChartTooltip content={<ChartTooltipContent />} />
-                <ChartLegend content={<ChartLegendContent />} />
-                <Bar dataKey="MeetingsBooked" fill="var(--color-MeetingsBooked)" radius={4} />
-                <Bar dataKey="MeetingsCancelled" fill="var(--color-MeetingsCancelled)" radius={4} />
-                <Bar dataKey="MeetingsAttended" fill="var(--color-MeetingsAttended)" radius={4} />
-              </BarChart>
-            </ChartContainer>
-          </TabsContent>
-        </Tabs>
+          <Select value={timeRange} onValueChange={setTimeRange}>
+            <SelectTrigger className="w-full md:w-[180px]">
+              <SelectValue placeholder="Select Time Range" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="7d">Last 7 Days</SelectItem>
+              <SelectItem value="30d">Last 30 Days</SelectItem>
+              <SelectItem value="90d">Last 90 Days</SelectItem>
+              <SelectItem value="365d">Last 365 Days</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* Chart */}
+        {loading ? (
+          <p className="text-center">Loading...</p>
+        ) : (
+          <ChartContainer
+            config={chartConfig}
+            className="h-[400px] w-full max-w-full"
+          >
+            <BarChart accessibilityLayer data={chartData} barSize={250}>
+              <CartesianGrid vertical={false} />
+              <XAxis
+                dataKey="label"
+                tickLine={true}
+                tickMargin={10}
+                axisLine={true}
+              />
+              <YAxis axisLine={true} tickLine={true} tickMargin={10} />
+              <ChartTooltip content={<ChartTooltipContent />} />
+              <ChartLegend content={<ChartLegendContent />} />
+              <Bar
+                dataKey="value"
+                fill={chartConfig[dataType].color}
+                radius={4}
+              />
+            </BarChart>
+          </ChartContainer>
+        )}
       </Card>
     </div>
   );

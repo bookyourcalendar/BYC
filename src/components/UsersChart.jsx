@@ -19,9 +19,10 @@ import {
 } from "@/components/ui/chart";
 
 const chartColors = {
-  DAU: "hsl(var(--chart-1))",
-  MAU: "hsl(var(--chart-2))",
-  TotalUsers: "hsl(var(--chart-3))",
+  DAU: "hsl(210, 100%, 85%)",
+  WAU: "hsl(210, 100%, 70%)",
+  MAU: "hsl(210, 100%, 55%)",
+  TotalUsers: "hsl(210, 100%, 40%)",
 };
 
 const chartConfig = {
@@ -30,15 +31,19 @@ const chartConfig = {
   },
   DAU: {
     label: "Daily Active Users",
-    color: "hsl(var(--chart-1))",
+    color: "hsl(210, 100%, 85%)",
+  },
+  WAU: {
+    label: "Weekly Active Users",
+    color: "hsl(210, 100%, 70%)",
   },
   MAU: {
     label: "Monthly Active Users",
-    color: "hsl(var(--chart-2))",
+    color: "hsl(210, 100%, 55%)",
   },
   TotalUsers: {
     label: "Total Users",
-    color: "hsl(var(--chart-3))",
+    color: "hsl(210, 100%, 40%)",
   },
 };
 
@@ -67,6 +72,7 @@ export function UsersChart() {
         // Transform data for the pie chart
         const transformedData = [
           { type: "DAU", count: data.DAU || 0, fill: chartColors.DAU },
+          { type: "WAU", count: data.WAU || 0, fill: chartColors.WAU },
           { type: "MAU", count: data.MAU || 0, fill: chartColors.MAU },
           {
             type: "TotalUsers",

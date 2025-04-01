@@ -11,8 +11,13 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Search } from "lucide-react";
+import { Search, Download } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import * as XLSX from "xlsx";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 
 export function CustomerTable() {
   const [users, setUsers] = useState([]);
@@ -44,18 +49,58 @@ export function CustomerTable() {
     user.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  const downloadAsXLS = () => {
+    const worksheet = XLSX.utils.json_to_sheet(filteredUsers);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Users");
+    XLSX.writeFile(workbook, "users.xlsx");
+  };
+
+  const downloadAsPDF = () => {
+    const doc = new jsPDF();
+    doc.text("User Data", 14, 10);
+    autoTable(doc, {
+      head: [["ID", "Name", "Email", "Plan", "Validity", "Created At"]],
+      body: filteredUsers.map((user) => [
+        user.id,
+        user.name,
+        user.email,
+        user.subscriptionPlan,
+        user.validity,
+        new Date(user.createdAt).toLocaleDateString(),
+      ]),
+    });
+    doc.save("users.pdf");
+  };
+
   return (
     <div className="overflow-x-auto p-4">
-      {/* Search Bar */}
-      <div className="relative mb-4 w-full md:w-1/3">
-        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 w-5 h-5" />
-        <Input
-          type="text"
-          placeholder="Search by name..."
-          className="pl-10 pr-4 py-2 w-full border border-gray-300 focus:ring-2 focus:ring-blue-500 rounded-md"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-        />
+      <div className="flex justify-between items-center mb-4">
+        {/* Search Bar */}
+        <div className="relative w-full md:w-1/3">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 w-5 h-5" />
+          <Input
+            type="text"
+            placeholder="Search by name..."
+            className="pl-10 pr-4 py-2 w-full border border-gray-300 focus:ring-2 focus:ring-blue-500 rounded-md"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        </div>
+
+        {/* Download Button */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button className="bg-blue-500 text-white flex items-center gap-2">
+              <Download className="w-4 h-4" />
+              Export
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent>
+            <DropdownMenuItem onClick={downloadAsXLS}>Download XLS</DropdownMenuItem>
+            <DropdownMenuItem onClick={downloadAsPDF}>Download PDF</DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
 
       {loading ? (
@@ -70,9 +115,7 @@ export function CustomerTable() {
               <TableHead className="text-left px-4 py-2">ID</TableHead>
               <TableHead className="text-left px-4 py-2">Name</TableHead>
               <TableHead className="text-left px-4 py-2">Email</TableHead>
-              <TableHead className="text-left px-4 py-2">
-                Current Plan
-              </TableHead>
+              <TableHead className="text-left px-4 py-2">Current Plan</TableHead>
               <TableHead className="text-left px-4 py-2">Validity</TableHead>
               <TableHead className="text-left px-4 py-2">Created At</TableHead>
             </TableRow>
@@ -84,13 +127,9 @@ export function CustomerTable() {
                   <TableCell className="px-4 py-2">{user.id}</TableCell>
                   <TableCell className="px-4 py-2">{user.name}</TableCell>
                   <TableCell className="px-4 py-2">{user.email}</TableCell>
-                  <TableCell className="px-4 py-2">
-                    {user.subscriptionPlan}
-                  </TableCell>
+                  <TableCell className="px-4 py-2">{user.subscriptionPlan}</TableCell>
                   <TableCell className="px-4 py-2">{user.validity}</TableCell>
-                  <TableCell className="px-4 py-2">
-                    {new Date(user.createdAt).toLocaleDateString()}
-                  </TableCell>
+                  <TableCell className="px-4 py-2">{new Date(user.createdAt).toLocaleDateString()}</TableCell>
                 </TableRow>
               ))
             ) : (
@@ -103,10 +142,7 @@ export function CustomerTable() {
           </TableBody>
           <TableFooter>
             <TableRow>
-              <TableCell
-                colSpan={6}
-                className="text-right px-4 py-2 font-semibold"
-              >
+              <TableCell colSpan={6} className="text-right px-4 py-2 font-semibold">
                 Total Users: {filteredUsers.length}
               </TableCell>
             </TableRow>

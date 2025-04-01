@@ -8,14 +8,16 @@ import DownloadButton from "@/components/DownloadButton";
 const Dashboard = () => {
   const [meetingStats, setMeetingStats] = useState({
     booked: 0,
-    attended: 0,
+    scheduled: 0,
     cancelled: 0,
+    upcoming: 0,
   });
 
   const [userCount, setUserCount] = useState({
     totalUsers: 0,
-    dailyActiveUsers: 0,
-    monthlyActiveUsers: 0,
+    DAU: 0,
+    WAU: 0,
+    MAU: 0,
   });
 
   const [loadingMeetings, setLoadingMeetings] = useState(true);
@@ -36,12 +38,16 @@ const Dashboard = () => {
         if (!response.ok) throw new Error("Failed to fetch meeting stats");
 
         const data = await response.json();
+        console.log("Meeting Stats:", data); // Debugging line to check response
+
         setMeetingStats({
           booked: data.totalBooked || 0,
-          attended: data.totalAttended || 0,
+          scheduled: data.totalScheduled || 0,
           cancelled: data.totalCanceled || 0,
+          upcoming: data.totalUpcoming || 0,
         });
       } catch (err) {
+        console.error("Error fetching meeting stats:", err); // Debugging error
         setMeetingsError(err.message);
       } finally {
         setLoadingMeetings(false);
@@ -64,12 +70,16 @@ const Dashboard = () => {
         if (!response.ok) throw new Error("Failed to fetch user data");
 
         const data = await response.json();
+        console.log("User Stats:", data); // Debugging line to check response
+
         setUserCount({
           totalUsers: data.totalUsers || 0,
-          dailyActiveUsers: data.dailyActiveUsers || 0,
-          monthlyActiveUsers: data.monthlyActiveUsers || 0,
+          dailyActiveUsers: data.DAU || 0,
+          weeklyActiveUsers: data.WAU || 0,
+          monthlyActiveUsers: data.MAU || 0,
         });
       } catch (err) {
+        console.error("Error fetching user stats:", err); // Debugging error
         setUsersError(err.message);
       } finally {
         setLoadingUsers(false);
@@ -82,9 +92,9 @@ const Dashboard = () => {
   return (
     <div className="min-h-screen bg-white text-gray-800 p-6">
       {/* Page Title */}
-      <div className="text-center mb-6">
+      {/* <div className="text-center mb-6">
         <h1 className="text-3xl font-bold">Dashboard Overview</h1>
-      </div>
+      </div> */}
 
       {/* Meetings Section */}
       <div className="mb-8">
@@ -97,7 +107,7 @@ const Dashboard = () => {
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
             {/* Meetings Booked */}
             <div className="rounded-xl border p-6 bg-card text-card-foreground shadow transition-transform duration-200 ease-in-out transform hover:scale-105 hover:shadow-lg">
-              <h3 className="text-lg font-medium text-center">
+              <h3 className="text-xl font-medium text-center">
                 Meetings Booked
               </h3>
               <p className="text-2xl font-bold text-primary pt-4 text-center">
@@ -107,31 +117,31 @@ const Dashboard = () => {
 
             {/* Meetings Attended */}
             <div className="rounded-xl border p-6 bg-card text-card-foreground shadow transition-transform duration-200 ease-in-out transform hover:scale-105 hover:shadow-lg">
-              <h3 className="text-lg font-medium text-center">
-                Meetings Attended
+              <h3 className="text-xl font-medium text-center">
+                Meetings Scheduled
               </h3>
-              <p className="text-lg text-center font-medium pt-4">
-                {meetingStats.attended}
+              <p className="text-2xl font-bold text-primary pt-4 text-center">
+                {meetingStats.scheduled}
               </p>
             </div>
 
             {/* Meetings Cancelled */}
             <div className="rounded-xl border p-6 bg-card text-card-foreground shadow transition-transform duration-200 ease-in-out transform hover:scale-105 hover:shadow-lg">
-              <h3 className="text-lg font-medium text-center">
+              <h3 className="text-xl font-medium text-center">
                 Meetings Cancelled
               </h3>
-              <p className="text-lg text-center font-medium pt-4">
+              <p className="text-2xl font-bold text-primary pt-4 text-center">
                 {meetingStats.cancelled}
               </p>
             </div>
 
             {/* Meetings Upcoming */}
             <div className="rounded-xl border p-6 bg-card text-card-foreground shadow transition-transform duration-200 ease-in-out transform hover:scale-105 hover:shadow-lg">
-              <h3 className="text-lg font-medium text-center">
+              <h3 className="text-xl font-medium text-center">
                 Meetings Upcoming
               </h3>
-              <p className="text-lg text-center font-medium pt-4">
-                {meetingStats.cancelled}
+              <p className="text-2xl font-bold text-primary pt-4 text-center">
+                {meetingStats.upcoming}
               </p>
             </div>
           </div>
@@ -146,31 +156,41 @@ const Dashboard = () => {
         ) : usersError ? (
           <p className="text-center text-red-500">{usersError}</p>
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
             {/* Total Users */}
             <div className="rounded-xl border p-6 bg-card text-card-foreground shadow transition-transform duration-200 ease-in-out transform hover:scale-105 hover:shadow-lg">
-              <h3 className="text-lg font-medium text-center">Total Users</h3>
-              <p className="text-lg text-center font-medium pt-4">
+              <h3 className="text-xl font-medium text-center">Total Users</h3>
+              <p className="text-2xl font-bold text-primary pt-4 text-center">
                 {userCount.totalUsers}
               </p>
             </div>
 
             {/* Daily Active Users */}
             <div className="rounded-xl border p-6 bg-card text-card-foreground shadow transition-transform duration-200 ease-in-out transform hover:scale-105 hover:shadow-lg">
-              <h3 className="text-lg font-medium text-center">
+              <h3 className="text-xl font-medium text-center">
                 Daily Active Users
               </h3>
-              <p className="text-lg text-center font-medium pt-4">
+              <p className="text-2xl font-bold text-primary pt-4 text-center">
                 {userCount.dailyActiveUsers}
+              </p>
+            </div>
+
+            {/* Weekly Active Users */}
+            <div className="rounded-xl border p-6 bg-card text-card-foreground shadow transition-transform duration-200 ease-in-out transform hover:scale-105 hover:shadow-lg">
+              <h3 className="text-xl font-medium text-center">
+                Weekly Active Users
+              </h3>
+              <p className="text-2xl font-bold text-primary pt-4 text-center">
+                {userCount.weeklyActiveUsers}
               </p>
             </div>
 
             {/* Monthly Active Users */}
             <div className="rounded-xl border p-6 bg-card text-card-foreground shadow transition-transform duration-200 ease-in-out transform hover:scale-105 hover:shadow-lg">
-              <h3 className="text-lg font-medium text-center">
+              <h3 className="text-xl font-medium text-center">
                 Monthly Active Users
               </h3>
-              <p className="text-lg text-center font-medium pt-4">
+              <p className="text-2xl font-bold text-primary pt-4 text-center">
                 {userCount.monthlyActiveUsers}
               </p>
             </div>
@@ -182,14 +202,10 @@ const Dashboard = () => {
       <div>
         <div className="text-2xl font-semibold mb-4">Analytics</div>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="bg-gray-100 p-6 rounded-lg shadow-md">
-            <h3 className="text-lg font-medium">Graph Section</h3>
-            {/* <UsersChart /> */}
+          <div className="bg-white p-6">
             <MeetingsChart />
           </div>
-          <div className="bg-gray-100 p-6 rounded-lg shadow-md">
-            <h3 className="text-lg font-medium">Pie Chart Section</h3>
-            {/* Placeholder for Pie Chart */}
+          <div className="bg-white p-6">
             <UsersChart />
           </div>
         </div>
