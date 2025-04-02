@@ -5,6 +5,8 @@ import Link from "next/link";
 import { Bell, Menu } from "lucide-react"; // Notification & Menu icons
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { UserButton } from "@clerk/nextjs";
+import { ManageAccountButton, SignOutButton } from "./ProfileDropdown";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -143,7 +145,6 @@ const Navbar = () => {
               )}
             </div>
           )}
-
           <DropdownMenu>
             <DropdownMenuTrigger>
               <Avatar>
@@ -152,25 +153,16 @@ const Navbar = () => {
               </Avatar>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-64">
-              <div className="p-4 border-b">
-                <Avatar>
-                  <AvatarImage src="/user-avatar.png" alt="User Avatar" />
-                  <AvatarFallback>AA</AvatarFallback>
-                </Avatar>
-                <p className="text-sm font-medium mt-2">John Doe</p>
-                <p className="text-xs text-gray-500">johndoe@example.com</p>
-              </div>
-              <DropdownMenuItem asChild>
-                <Link href="/Profile">Profile</Link>
+              <DropdownMenuItem>
+                <ManageAccountButton />
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
                 <Link href="/Dashboard">Dashboard</Link>
               </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link href="/Settings">Settings</Link>
-              </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>Sign Out</DropdownMenuItem>
+              <DropdownMenuItem>
+                <SignOutButton />
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
