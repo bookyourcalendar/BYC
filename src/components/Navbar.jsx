@@ -149,10 +149,10 @@ const Navbar = () => {
             <DropdownMenuTrigger>
               <Avatar>
                 <AvatarImage src="/user-avatar.png" alt="User Avatar" />
-                <AvatarFallback>AA</AvatarFallback>
+                <AvatarFallback>GB</AvatarFallback>
               </Avatar>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-64">
+            <DropdownMenuContent align="end" className="w-56">
               <DropdownMenuItem>
                 <ManageAccountButton />
               </DropdownMenuItem>
