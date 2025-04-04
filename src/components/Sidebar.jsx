@@ -34,7 +34,7 @@ const AppSidebar = () => {
         {/* Logo */}
         <Link href="/" className="text-2xl font-bold text-gray-800">
           <Image
-            src="/navlogo.png"
+            src="/Group-3.png"
             width={250}
             height={40}
             alt="Book Your Calendar"
