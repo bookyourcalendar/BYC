@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -13,13 +13,23 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Download } from "lucide-react";
 import dynamic from "next/dynamic";
-import * as XLSX from "xlsx";
+
+// Dynamic import of XLSX to handle SSR
+const xlsxModule = dynamic(
+  () => import("xlsx").then((mod) => ({ default: mod })),
+  { ssr: false }
+);
 
 const jsPDF = dynamic(() => import("jspdf"), { ssr: false });
 
 const DownloadButton = () => {
   const [filter, setFilter] = useState("7d");
-
+  const [isClient, setIsClient] = useState(false);
+  
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+  
   const fetchData = async () => {
     try {
       const meetingsResponse = await fetch(
@@ -48,6 +58,9 @@ const DownloadButton = () => {
     console.log("Exporting as XLS...");
     const data = await fetchData();
     if (!data) return;
+    
+    // Load XLSX module dynamically
+    const XLSX = await xlsxModule;
 
     const worksheet = XLSX.utils.json_to_sheet([
       { ...data.meetingsCountData, filter },
@@ -102,6 +115,11 @@ const DownloadButton = () => {
 
     doc.save("BookeYourCalendar-report.pdf");
   };
+  
+  // Don't render anything during SSR
+  if (!isClient) {
+    return null;
+  }
 
   return (
     <div className="flex justify-end">

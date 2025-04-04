@@ -5,7 +5,8 @@ import { UsersChart } from "@/components/UsersChart";
 import MeetingsChart from "@/components/MeetingsChart";
 import DownloadButton from "@/components/DownloadButton";
 
-const Dashboard = () => {
+export default function Dashboard() {
+  const [mounted, setMounted] = useState(false);
   const [meetingStats, setMeetingStats] = useState({
     booked: 0,
     scheduled: 0,
@@ -25,8 +26,15 @@ const Dashboard = () => {
   const [meetingsError, setMeetingsError] = useState("");
   const [usersError, setUsersError] = useState("");
 
+  // First, ensure we're on the client
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   // Fetch meeting stats
   useEffect(() => {
+    if (!mounted) return;
+    
     const fetchMeetingStats = async () => {
       setLoadingMeetings(true);
       setMeetingsError("");
@@ -38,8 +46,7 @@ const Dashboard = () => {
         if (!response.ok) throw new Error("Failed to fetch meeting stats");
 
         const data = await response.json();
-        console.log("Meeting Stats:", data); // Debugging line to check response
-
+        
         setMeetingStats({
           booked: data.totalBooked || 0,
           scheduled: data.totalScheduled || 0,
@@ -47,7 +54,6 @@ const Dashboard = () => {
           upcoming: data.totalUpcoming || 0,
         });
       } catch (err) {
-        console.error("Error fetching meeting stats:", err); // Debugging error
         setMeetingsError(err.message);
       } finally {
         setLoadingMeetings(false);
@@ -55,10 +61,12 @@ const Dashboard = () => {
     };
 
     fetchMeetingStats();
-  }, []);
+  }, [mounted]);
 
   // Fetch user stats
   useEffect(() => {
+    if (!mounted) return;
+    
     const fetchUserStats = async () => {
       setLoadingUsers(true);
       setUsersError("");
@@ -70,8 +78,7 @@ const Dashboard = () => {
         if (!response.ok) throw new Error("Failed to fetch user data");
 
         const data = await response.json();
-        console.log("User Stats:", data); // Debugging line to check response
-
+        
         setUserCount({
           totalUsers: data.totalUsers || 0,
           dailyActiveUsers: data.DAU || 0,
@@ -79,7 +86,6 @@ const Dashboard = () => {
           monthlyActiveUsers: data.MAU || 0,
         });
       } catch (err) {
-        console.error("Error fetching user stats:", err); // Debugging error
         setUsersError(err.message);
       } finally {
         setLoadingUsers(false);
@@ -87,7 +93,12 @@ const Dashboard = () => {
     };
 
     fetchUserStats();
-  }, []);
+  }, [mounted]);
+
+  // Don't render anything during SSR
+  if (!mounted) {
+    return null;
+  }
 
   return (
     <div className="min-h-screen bg-white text-gray-800 p-6">
@@ -215,6 +226,4 @@ const Dashboard = () => {
       </div>
     </div>
   );
-};
-
-export default Dashboard;
+}

@@ -54,6 +54,9 @@ export function UsersChart() {
   const [trendPercentage, setTrendPercentage] = useState(0);
 
   useEffect(() => {
+    // Skip execution during SSR
+    if (typeof window === 'undefined') return;
+    
     const fetchData = async () => {
       try {
         setIsLoading(true);
@@ -103,6 +106,11 @@ export function UsersChart() {
   const totalVisitors = React.useMemo(() => {
     return chartData.reduce((acc, curr) => acc + curr.count, 0);
   }, [chartData]);
+
+  // Skip rendering during SSR
+  if (typeof window === 'undefined') {
+    return null;
+  }
 
   if (isLoading) {
     return (

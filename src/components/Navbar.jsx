@@ -159,6 +159,9 @@ const Navbar = () => {
               <DropdownMenuItem asChild>
                 <Link href="/Dashboard">Dashboard</Link>
               </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link href="/terminal">Terminal</Link>
+              </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem>
                 <SignOutButton />

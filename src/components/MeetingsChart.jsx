@@ -31,6 +31,9 @@ const MeetingsChart = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Skip execution during SSR
+    if (typeof window === 'undefined') return;
+    
     const fetchData = async () => {
       setLoading(true);
       try {
@@ -50,6 +53,11 @@ const MeetingsChart = () => {
     };
     fetchData();
   }, [dataType, timeRange]);
+  
+  // Skip rendering during SSR
+  if (typeof window === 'undefined') {
+    return null;
+  }
 
   return (
     <div className="flex flex-col gap-6 items-center w-full px-4 md:px-0">

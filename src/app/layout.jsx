@@ -14,7 +14,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import Sidebar from "@/components/Sidebar";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Menu } from "lucide-react"; // For a hamburger menu icon
 import { Button } from "@/components/ui/button";
 import { SignIn } from "@clerk/nextjs";
@@ -36,6 +36,25 @@ const metadata = {
 
 export default function RootLayout({ children }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  
+  // Only execute on client-side
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+  
+  // Show a simple loading state during SSR
+  if (!mounted) {
+    return (
+      <html lang="en">
+        <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+          <div className="flex items-center justify-center min-h-screen">
+            <p>Loading...</p>
+          </div>
+        </body>
+      </html>
+    );
+  }
 
   return (
     <ClerkProvider>

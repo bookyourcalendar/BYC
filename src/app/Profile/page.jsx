@@ -1,29 +1,66 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { useAuth } from "@clerk/nextjs";
+import { useAuth, useClerk } from "@clerk/nextjs";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
 
-const Profile = () => {
-  const { userId, isLoaded } = useAuth();
+export default function Profile() {
+  // Only initialize client-side
+  const [mounted, setMounted] = useState(false);
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
+  const router = useRouter();
+  
+  // Initialize auth only after component mounts
+  const [authState, setAuthState] = useState({
+    userId: null,
+    isLoaded: false,
+    signOut: null
+  });
+  
+  // First, ensure we're on the client
   useEffect(() => {
-    if (!isLoaded) return;
-    if (!userId) {
+    setMounted(true);
+  }, []);
+  
+  // Then, initialize Clerk
+  useEffect(() => {
+    if (!mounted) return;
+    
+    try {
+      const { useAuth, useClerk } = require("@clerk/nextjs");
+      const auth = useAuth();
+      const clerk = useClerk();
+      
+      setAuthState({
+        userId: auth.userId,
+        isLoaded: auth.isLoaded,
+        signOut: clerk.signOut
+      });
+    } catch (err) {
+      setError("Authentication service unavailable");
+      setLoading(false);
+    }
+  }, [mounted]);
+  
+  // Fetch user data after auth is loaded
+  useEffect(() => {
+    if (!mounted) return;
+    if (!authState.isLoaded) return;
+    
+    if (!authState.userId) {
       setError("User not authenticated");
       setLoading(false);
       return;
     }
-    console.log(userId);
-
+    
     const fetchUser = async () => {
       try {
         const response = await fetch(
-          `https://www.bookyourcalendar.com/api/admin/profile/?userId=${userId}`,{
+          `https://www.bookyourcalendar.com/api/admin/profile/?userId=${authState.userId}`,{
             method: 'GET',
             headers: {
               'Content-Type': 'application/json',
@@ -34,7 +71,6 @@ const Profile = () => {
         if (!response.ok) throw new Error("Failed to fetch user");
 
         const { data } = await response.json();
-        console.log(data);
         setUser(data);
       } catch (err) {
         setError(err.message);
@@ -42,8 +78,14 @@ const Profile = () => {
         setLoading(false);
       }
     };
+    
     fetchUser();
-  }, [userId, isLoaded]);
+  }, [authState.userId, authState.isLoaded, mounted]);
+
+  // Don't render anything during SSR
+  if (!mounted) {
+    return null;
+  }
 
   if (loading) return <p className="text-center mt-10">Loading...</p>;
   if (error)
@@ -93,6 +135,11 @@ const Profile = () => {
           <Button
             variant="outline"
             className="border-blue-500 text-blue-500 hover:bg-blue-100"
+            onClick={() => {
+              if (authState.signOut) {
+                authState.signOut(() => router.push("/"));
+              }
+            }}
           >
             Logout
           </Button>
@@ -100,6 +147,4 @@ const Profile = () => {
       </div>
     </div>
   );
-};
-
-export default Profile;
+}
