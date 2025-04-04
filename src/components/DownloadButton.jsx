@@ -23,17 +23,17 @@ const DownloadButton = () => {
   const fetchData = async () => {
     try {
       const meetingsResponse = await fetch(
-        `http://localhost:3000/api/admin/meetingsGraph?filter=${filter}`
+        `https://bookyourcalendar.com/api/admin/meetingsGraph?filter=${filter}`
       );
       const meetingsData = await meetingsResponse.json();
 
       const meetingsCountResponse = await fetch(
-        "http://localhost:3000/api/admin/meetingsCount"
+        "https://bookyourcalendar.com/api/admin/meetingsCount"
       );
       const meetingsCountData = await meetingsCountResponse.json();
 
       const analyticsResponse = await fetch(
-        "http://localhost:3000/api/admin/analytics"
+        "https://bookyourcalendar.com/api/admin/analytics"
       );
       const analyticsData = await analyticsResponse.json();
 
@@ -56,7 +56,11 @@ const DownloadButton = () => {
     ]);
 
     const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "BookeYourCalendar Report");
+    XLSX.utils.book_append_sheet(
+      workbook,
+      worksheet,
+      "BookeYourCalendar Report"
+    );
 
     const excelBuffer = XLSX.write(workbook, {
       bookType: "xlsx",
@@ -112,7 +116,7 @@ const DownloadButton = () => {
           <DropdownMenuSub>
             <DropdownMenuSubTrigger>Select Filter</DropdownMenuSubTrigger>
             <DropdownMenuSubContent>
-              {['7d', '30d', '90d', '365d'].map((option) => (
+              {["7d", "30d", "90d", "365d"].map((option) => (
                 <DropdownMenuItem
                   key={option}
                   onSelect={(e) => {
@@ -125,8 +129,12 @@ const DownloadButton = () => {
               ))}
             </DropdownMenuSubContent>
           </DropdownMenuSub>
-          <DropdownMenuItem onSelect={exportXLS}>Export as XLS</DropdownMenuItem>
-          <DropdownMenuItem onSelect={exportPDF}>Export as PDF</DropdownMenuItem>
+          <DropdownMenuItem onSelect={exportXLS}>
+            Export as XLS
+          </DropdownMenuItem>
+          <DropdownMenuItem onSelect={exportPDF}>
+            Export as PDF
+          </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
     </div>

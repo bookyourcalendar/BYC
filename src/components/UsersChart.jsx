@@ -60,7 +60,7 @@ export function UsersChart() {
         setError(null);
 
         const response = await fetch(
-          "http://localhost:3000/api/admin/analytics"
+          "https://bookyourcalendar.com/api/admin/analytics"
         );
 
         if (!response.ok) {

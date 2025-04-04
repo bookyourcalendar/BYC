@@ -23,11 +23,11 @@ const Profile = () => {
     const fetchUser = async () => {
       try {
         const response = await fetch(
-          `http://localhost:3000/api/admin/profile/?userId=${userId}`,{
+          `https://www.bookyourcalendar.com/api/admin/profile/?userId=${userId}`,{
             method: 'GET',
             headers: {
               'Content-Type': 'application/json',
-              'Origin': 'http://localhost:3001',
+              'Origin': 'https://www.bookyourcalendar.com',
             },
           }
         );

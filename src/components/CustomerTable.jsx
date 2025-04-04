@@ -27,7 +27,7 @@ export function CustomerTable() {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const res = await fetch("http://localhost:3000/api/admin/users");
+        const res = await fetch("https://bookyourcalendar.com/api/admin/users");
         const data = await res.json();
 
         if (data.success) {

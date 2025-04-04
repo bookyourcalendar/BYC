@@ -33,7 +33,7 @@ const Dashboard = () => {
 
       try {
         const response = await fetch(
-          "http://localhost:3000/api/admin/meetingsCount"
+          "https://www.bookyourcalendar.com/api/admin/meetingsCount"
         );
         if (!response.ok) throw new Error("Failed to fetch meeting stats");
 
@@ -65,7 +65,7 @@ const Dashboard = () => {
 
       try {
         const response = await fetch(
-          "http://localhost:3000/api/admin/analytics"
+          "https://www.bookyourcalendar.com/api/admin/analytics"
         );
         if (!response.ok) throw new Error("Failed to fetch user data");
 
