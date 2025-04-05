@@ -38,7 +38,7 @@ const MeetingsChart = () => {
       setLoading(true);
       try {
         const response = await fetch(
-          `https://bookyourcalendar.com/api/admin/meetingsGraph?filter=${timeRange}`
+          `http://localhost:3000/api/admin/meetingsGraph?filter=${timeRange}`
         );
         const result = await response.json();
 

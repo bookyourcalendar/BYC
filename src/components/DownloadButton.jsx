@@ -33,17 +33,17 @@ const DownloadButton = () => {
   const fetchData = async () => {
     try {
       const meetingsResponse = await fetch(
-        `https://bookyourcalendar.com/api/admin/meetingsGraph?filter=${filter}`
+        `http://localhost:3000api/admin/meetingsGraph?filter=${filter}`
       );
       const meetingsData = await meetingsResponse.json();
 
       const meetingsCountResponse = await fetch(
-        "https://bookyourcalendar.com/api/admin/meetingsCount"
+        "http://localhost:3000/api/admin/meetingsCount"
       );
       const meetingsCountData = await meetingsCountResponse.json();
 
       const analyticsResponse = await fetch(
-        "https://bookyourcalendar.com/api/admin/analytics"
+        "http://localhost:3000/api/admin/analytics"
       );
       const analyticsData = await analyticsResponse.json();
 

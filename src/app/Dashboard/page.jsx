@@ -41,7 +41,7 @@ export default function Dashboard() {
 
       try {
         const response = await fetch(
-          "https://www.bookyourcalendar.com/api/admin/meetingsCount"
+          "http://localhost:3000/api/admin/meetingsCount"
         );
         if (!response.ok) throw new Error("Failed to fetch meeting stats");
 
@@ -73,7 +73,7 @@ export default function Dashboard() {
 
       try {
         const response = await fetch(
-          "https://www.bookyourcalendar.com/api/admin/analytics"
+          "http://localhost:3000/api/admin/analytics"
         );
         if (!response.ok) throw new Error("Failed to fetch user data");
 

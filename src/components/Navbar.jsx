@@ -25,7 +25,7 @@ const Navbar = () => {
     const fetchNotifications = async () => {
       try {
         const res = await fetch(
-          "https://bookyourcalendar.com/api/admin/ticketNotifiation"
+          "http://localhost:3000/api/admin/ticketNotifiation"
         );
         if (!res.ok) throw new Error("Failed to fetch notifications");
         const data = await res.json();
@@ -65,7 +65,7 @@ const Navbar = () => {
   const clearNotifications = async () => {
     try {
       const res = await fetch(
-        "https://bookyourcalendar.com/api/admin/markAsReadTicket",
+        "http://localhost:3000/api/admin/markAsReadTicket",
         {
           method: "POST",
         }

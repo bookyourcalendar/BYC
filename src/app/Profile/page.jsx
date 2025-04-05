@@ -60,11 +60,11 @@ export default function Profile() {
     const fetchUser = async () => {
       try {
         const response = await fetch(
-          `https://www.bookyourcalendar.com/api/admin/profile/?userId=${authState.userId}`,{
+          `http://localhost:3000/api/admin/profile/?userId=${authState.userId}`,{
             method: 'GET',
             headers: {
               'Content-Type': 'application/json',
-              'Origin': 'https://www.bookyourcalendar.com',
+              'Origin': 'http://localhost:3000',
             },
           }
         );

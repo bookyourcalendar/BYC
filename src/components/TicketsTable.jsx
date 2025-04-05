@@ -38,7 +38,7 @@ export function TicketsTable() {
         setError(null);
 
         const response = await fetch(
-          "https://bookyourcalendar.com/api/admin/supportTickets"
+          "http://localhost:3000/api/admin/supportTickets"
         );
         if (!response.ok)
           throw new Error(`Failed to fetch tickets: ${response.statusText}`);
