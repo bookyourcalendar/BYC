@@ -27,18 +27,24 @@ export function CustomerTable() {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
+        console.log("Fetching users from API...");
         const res = await fetch("http://localhost:3000/api/admin/users");
+        console.log("API response status:", res.status);
+        if (!res.ok) throw new Error("Network response was not ok");
         const data = await res.json();
+        console.log("Fetched data:", data);
 
         if (data.success) {
           setUsers(data.data);
+          console.log("Users set:", data.data);
         } else {
           console.error("Error fetching users:", data.message);
         }
       } catch (error) {
-        console.error("Error fetching users:", error);
+        console.error("Failed to fetch users:", error);
       } finally {
         setLoading(false);
+        console.log("Loading set to false");
       }
     };
 

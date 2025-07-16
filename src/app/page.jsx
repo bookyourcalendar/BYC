@@ -1,7 +1,17 @@
-import Dashboard from "./Dashboard/page";
-import { auth } from "@clerk/nextjs/server";
-import { redirect } from "next/navigation";
+"use client"
+
+import { useEffect } from "react"
+import { useRouter } from "next/navigation"
+import { default as Dashboard } from "./(main)/Dashboard/page"
 
 export default function Home() {
-  return <Dashboard />; 
+  const router = useRouter()
+  
+  // Redirect to the Dashboard page with proper layout
+  useEffect(() => {
+    router.push("/Dashboard")
+  }, [router])
+  
+  // Return the Dashboard component as a fallback
+  return <Dashboard />
 }

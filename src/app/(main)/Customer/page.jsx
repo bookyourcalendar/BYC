@@ -1,4 +1,4 @@
-import { CustomerTable } from "@/components/CustomerTable";
+import { CustomerTable } from "@/components/customers/CustomerTable";
 import React from "react";
 
 const Customer = () => {

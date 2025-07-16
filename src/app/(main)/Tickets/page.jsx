@@ -1,4 +1,4 @@
-import { TicketsTable } from "@/components/TicketsTable";
+import { TicketsTable } from "@/components/tickets/TicketsTable";
 import React from "react";
 
 const Ticket = () => {
